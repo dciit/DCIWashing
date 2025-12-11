@@ -1,0 +1,513 @@
+﻿using DCIWashing.Props;
+using EKANBAN;
+using EKBPartStock;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Data.SqlClient;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Xml.Linq;
+
+namespace DCIWashing
+{
+    public partial class FrmMain : Form
+    {
+        SqlConnectDB dbSCM = new SqlConnectDB("dbSCM");
+        private IniFile ini = new IniFile("Config.ini");
+        private string ConfWCNO = "";
+        private string MethodStart = "";
+        private string str = "";
+        private Services oServ = new Services();
+        private List<PropTransaction> dtTransaction = new List<PropTransaction>();
+        private DataTable dtWIPs = new DataTable();
+        private DataTable dtSummaryOfDay = new DataTable();
+        private List<PropRMInfo> ListScanInfo = new List<PropRMInfo>();
+        
+        // เพิ่มตัวแปรเพื่อติดตามโหมดปัจจุบัน
+        private string CurrentScanMode = "IN"; // Default เป็น "IN" (สแกนรับ)
+        private string LoggedInUserName = ""; // เก็บชื่อผู้ใช้ที่เข้าสู่ระบบ
+        private DateTime LastActivityTime = DateTime.Now; // เก็บเวลาการใช้งานล่าสุด
+        private Timer sessionTimer; // Timer สำหรับตรวจสอบ session timeout
+        
+        // Constructor ใหม่ที่รับชื่อผู้ใช้
+        public FrmMain(string userName)
+        {
+            InitializeComponent();
+            LoggedInUserName = userName;
+            InitializeSessionTimer();
+        }
+
+        public FrmMain()
+        {
+            InitializeComponent();
+            InitializeSessionTimer();
+        }
+
+        private void InitializeSessionTimer()
+        {
+            // ตั้งค่า Timer สำหรับตรวจสอบ session timeout (30 นาที)
+            sessionTimer = new Timer();
+            sessionTimer.Interval = 60000; // ตรวจสอบทุก 1 นาที
+            sessionTimer.Tick += SessionTimer_Tick;
+            sessionTimer.Start();
+            
+            // อัพเดต LastActivityTime เมื่อมีการใช้งาน
+            this.MouseMove += (s, e) => UpdateLastActivity();
+            this.KeyDown += (s, e) => UpdateLastActivity();
+        }
+
+        private void SessionTimer_Tick(object sender, EventArgs e)
+        {
+            // ตรวจสอบว่าไม่มีการใช้งานเกิน 30 นาทีหรือไม่
+            if (DateTime.Now.Subtract(LastActivityTime).TotalMinutes > 30)
+            {
+                sessionTimer.Stop();
+                MessageBox.Show("Session หมดอายุ กรุณาเข้าสู่ระบบใหม่", "Session Timeout", 
+                               MessageBoxButtons.OK, MessageBoxIcon.Information);
+                BtnLogout_Click(sender, e);
+            }
+        }
+
+        private void UpdateLastActivity()
+        {
+            LastActivityTime = DateTime.Now;
+        }
+
+        private void BtnLogout_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show("ออกจากระบบ ใช่หรือไม่?", "ยืนยันการออก", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (result == DialogResult.Yes)
+            {
+                // ซ่อน Main Form
+                this.Hide();
+                
+                // แสดง Login Dialog อีกครั้ง
+                FrmLogin loginForm = new FrmLogin();
+                DialogResult loginResult = loginForm.ShowDialog();
+                
+                if (loginResult == DialogResult.OK && loginForm.IsLoginSuccessful)
+                {
+                    // ถ้า Login สำเร็จ อัพเดตข้อมูลผู้ใช้และแสดง Main Form อีกครั้ง
+                    LoggedInUserName = loginForm.LoggedInUserName;
+                    TxtEmpcode.Text = LoggedInUserName;
+                    
+                    // ล้างข้อมูลเดิมในระบบ
+                    ClearAllData();
+                    
+                    this.Show();
+                }
+                else
+                {
+                    // ถ้า Login ไม่สำเร็จ ให้ออกจากโปรแกรม
+                    Application.Exit();
+                }
+            }
+        }
+
+        private void ClearAllData()
+        {
+            // ล้างรายการสแกน
+            foreach (Control control in LayScan.Controls)
+            {
+                if (control is ControlScan controlScan)
+                {
+                    controlScan.Dispose();
+                }
+            }
+            LayScan.Controls.Clear();
+            
+            // ล้างข้อมูลอื่นๆ
+            ListScanInfo.Clear();
+            DgSummary.Rows.Clear();
+            TxtScan.Clear();
+            
+            // รีเซ็ตโหมดเป็น default
+            CurrentScanMode = "IN";
+            UpdateButtonStates(); // อัพเดตสีปุ่มและ background
+            
+            // รีเซ็ต session timer
+            LastActivityTime = DateTime.Now;
+            if (sessionTimer != null)
+            {
+                sessionTimer.Start();
+            }
+        }
+
+        private void BtnIn_Click(object sender, EventArgs e)
+        {
+            UpdateLastActivity();
+            // เปลี่ยนโหมดเป็น "IN" (สแกนรับ)
+            CurrentScanMode = "IN";
+            UpdateButtonStates();
+        }
+
+        private void BtnOut_Click(object sender, EventArgs e)
+        {
+            UpdateLastActivity();
+            // เปลี่ยนโหมดเป็น "OUT" (สแกนนำออก)
+            CurrentScanMode = "OUT";
+            UpdateButtonStates();
+        }
+
+        private void UpdateButtonStates()
+        {
+            // อัพเดตสีของปุ่มตามโหมดที่เลือก
+            if (CurrentScanMode == "IN")
+            {
+                // ปุ่มสแกนรับ active (สีเขียวเข้ม)
+                BtnIn.BackColor = Color.FromArgb(66, 173, 130);
+                BtnIn.ForeColor = Color.White;
+                
+                // ปุ่มสแกนนำออก inactive (สีเทา)
+                BtnOut.BackColor = SystemColors.ButtonFace;
+                BtnOut.ForeColor = Color.Black;
+                
+                // เปลี่ยนสี background ของ app เป็นสีเขียวอ่อน
+                this.BackColor = Color.FromArgb(200, 255, 200); // สีเขียวอ่อน
+                PnToolbar.BackColor = Color.FromArgb(230, 255, 230); // สีเขียวอ่อนกว่า
+            }
+            else
+            {
+                // ปุ่มสแกนนำออก active (สีแดง)
+                BtnOut.BackColor = Color.FromArgb(255, 89, 93);
+                BtnOut.ForeColor = Color.White;
+                
+                // ปุ่มสแกนรับ inactive (สีเทา)
+                BtnIn.BackColor = SystemColors.ButtonFace;
+                BtnIn.ForeColor = Color.Black;
+                
+                // เปลี่ยนสี background ของ app เป็นสีแดงอ่อน
+                this.BackColor = Color.FromArgb(255, 200, 200); // สีแดงอ่อน
+                PnToolbar.BackColor = Color.FromArgb(255, 230, 230); // สีแดงอ่อนกว่า
+            }
+        }
+
+        private void textBox1_KeyDown(object sender, KeyEventArgs e)
+        {
+            UpdateLastActivity();
+            if (e.KeyCode == Keys.Enter)
+            {
+                string inputText = TxtScan.Text.Trim();
+
+                // ตรวจสอบว่ามีข้อความหรือไม่
+                if (!string.IsNullOrEmpty(inputText))
+                {
+                    CreateScanControl(inputText);
+                    TxtScan.Clear(); // ล้างข้อความใน TextBox
+                }
+
+                e.Handled = true; // ป้องกันเสียง beep
+            }
+        }
+
+        private void CreateScanControl(string ScanValue)
+        {
+            DataTable ObjRMInfo = GetRMInfo(ScanValue);
+            if (ObjRMInfo != null)
+            {
+                ControlScan ItemScan = new ControlScan(ObjRMInfo, CurrentScanMode);
+                
+                // Subscribe ไปยัง DeleteRequested event
+                ItemScan.DeleteRequested += ItemScan_DeleteRequested;
+                
+                LayScan.Controls.Add(ItemScan);
+            }
+        }
+
+        private void ItemScan_DeleteRequested(object sender, EventArgs e)
+        {
+            // ลบ ControlScan ออกจาก LayScan
+            if (sender is ControlScan controlToDelete)
+            {
+                LayScan.Controls.Remove(controlToDelete);
+                
+                // Dispose control เพื่อปล่อย memory
+                controlToDelete.Dispose();
+            }
+        }
+
+        internal DataTable GetRMInfo(string scanValue)
+        {
+            string str = $@"exec sp_aps_washing 'rm_qr_washing_info' ,'{scanValue}'";
+            SqlCommand sql = new SqlCommand();
+            sql.CommandText = str;
+            DataTable dtRMInfo = dbSCM.Query(sql);
+            if (dtRMInfo.Rows.Count > 0)
+            {
+                return dtRMInfo;
+            }
+            else
+            {
+                MessageBox.Show("ไม่สามารถสแกนงานได้ เนื่องจากข้อมูล Master ไม่ครบถ้วน ติดต่อทีมงาน IT (250) เบียร์");
+                return null;
+            }
+        }
+
+        private void PnToolbar_Paint(object sender, PaintEventArgs e)
+        {
+        }
+
+        private void LoadTransaction()
+        {
+            //DataPartStock = oServ.GetPartStockInfo(ConfWCNO);
+            dtTransaction = oServ.GetTransactionOfDay(ConfWCNO, DtDatePickerTransaction.Value, DateTime.Now.AddHours(-8).Hour >= 12 ? "N" : "D");
+            DgTransaction.Rows.Clear();
+            if (dtTransaction.Count > 0)
+            {
+                foreach (PropTransaction item in dtTransaction)
+                {
+
+                    int rowIndex = DgTransaction.Rows.Add(item.time, item.partno, item.type, item.qty, item.createBy);
+                    //DataGridViewRow row = DgTransaction.Rows[rowIndex];
+                    //if (item.type == "IN")
+                    //{
+                    //    row.Cells[3].Style.BackColor = System.Drawing.Color.LightGreen;
+                    //    row.Cells[4].Style.BackColor = System.Drawing.Color.LightGreen;
+                    //    row.Cells[4].Style.Font = new Font(DgTransaction.Font, FontStyle.Bold);
+                    //}
+                    //else if (item.type == "OUT")
+                    //{
+                    //    row.Cells[3].Style.BackColor = System.Drawing.Color.LightCoral;
+                    //    row.Cells[4].Style.BackColor = System.Drawing.Color.LightCoral;
+                    //    row.Cells[4].Style.Font = new Font(DgTransaction.Font, FontStyle.Bold);
+                    //}
+                }
+            }
+        }
+        private void LoadWIP()
+        {
+
+        }
+        private void LoadSummaryOfDay()
+        {
+
+        }
+
+        private void FrmMain_Load(object sender, EventArgs e)
+        {
+            ConfWCNO = ini.GetString("CONFIG", "WCNO", "");
+            MethodStart = ini.GetString("CONFIG", "METHOD", "");
+            
+            // แสดงชื่อผู้ใช้ที่เข้าสู่ระบบ
+            if (!string.IsNullOrEmpty(LoggedInUserName))
+            {
+                TxtEmpcode.Text = LoggedInUserName;
+            }
+            
+            // ตั้งโหมดเริ่มต้นจากการตั้งค่า หรือ default เป็น "IN"
+            CurrentScanMode = string.IsNullOrEmpty(MethodStart) ? "IN" : MethodStart;
+            
+            ViewMethod(CurrentScanMode);
+            UpdateButtonStates(); // อัพเดตสถานะปุ่มและสี background เมื่อเริ่มโปรแกรม
+            
+            if (ConfWCNO != "")
+            {
+                LoadTransaction();
+            }
+        }
+
+        private void ViewMethod(string methodStart)
+        {
+            CurrentScanMode = methodStart;
+            UpdateButtonStates();
+        }
+
+        private void BtnSave_Click(object sender, EventArgs e)
+        {
+            // ตรวจสอบว่ามีรายการที่จะบันทึกหรือไม่
+            if (LayScan.Controls.Count == 0)
+            {
+                MessageBox.Show("ไม่มีรายการที่จะบันทึก", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            // สร้าง DataTable สำหรับเก็บข้อมูล
+            DataTable dtSaveData = new DataTable();
+            dtSaveData.Columns.Add("WCNO", typeof(string));
+            dtSaveData.Columns.Add("Partno", typeof(string));
+            dtSaveData.Columns.Add("CM", typeof(string));
+            dtSaveData.Columns.Add("Qty", typeof(int));
+            dtSaveData.Columns.Add("Type", typeof(string));
+
+            // เก็บข้อมูลจาก ControlScan ลง DataTable
+            foreach (Control ItemScan in LayScan.Controls)
+            {
+                if (ItemScan is ControlScan oControlScan)
+                {
+                    DataRow row = dtSaveData.NewRow();
+                    row["WCNO"] = oControlScan.WCNO;
+                    row["Partno"] = oControlScan.RM;
+                    row["CM"] = oControlScan.CM;
+                    
+                    // แปลง Qty เป็น int และตรวจสอบความถูกต้อง
+                    if (int.TryParse(oControlScan.Qty, out int qty))
+                    {
+                        row["Qty"] = qty;
+                    }
+                    else
+                    {
+                        row["Qty"] = 0; // ถ้าแปลงไม่ได้ให้ใส่ 0
+                    }
+                    
+                    row["Type"] = oControlScan.Type;
+                    dtSaveData.Rows.Add(row);
+                }
+            }
+
+            // บันทึกข้อมูลลงฐานข้อมูลผ่าน stored procedure
+            bool saveSuccess = SaveToWIPDatabase(dtSaveData);
+            
+            if (saveSuccess)
+            {
+                // แสดงผลใน DataGridView ด้านล่าง
+                DisplaySummaryData(dtSaveData);
+
+                // แสดงข้อความยืนยัน
+                MessageBox.Show($"บันทึกข้อมูลเรียบร้อยแล้ว จำนวน {dtSaveData.Rows.Count} รายการ", 
+                               "บันทึกสำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                               
+                // ล้างรายการที่บันทึกสำเร็จแล้ว
+                ClearSavedItems();
+            }
+        }
+
+        private bool SaveToWIPDatabase(DataTable dtData)
+        {
+            try
+            {
+                bool allSuccess = true;
+                
+                // วนลูปบันทึกข้อมูลลงฐานข้อมูลแต่ละรายการ
+                foreach (DataRow row in dtData.Rows)
+                {
+                    string wcno = row["WCNO"].ToString();
+                    string partno = row["Partno"].ToString();
+                    string cm = row["CM"].ToString();
+                    int qty = Convert.ToInt32(row["Qty"]);
+                    
+                    // เรียก stored procedure
+                    string sql = $"exec sp_aps_washing 'insert_wip', '{wcno}', '{partno}', '{cm}', {qty}";
+                    SqlCommand command = new SqlCommand(sql);
+                    DataTable result = dbSCM.Query(command);
+                    
+                    // ตรวจสอบผลลัพธ์
+                    if (result != null && result.Rows.Count > 0)
+                    {
+                        int status = Convert.ToInt32(result.Rows[0]["status"]);
+                        string message = result.Rows[0]["message"].ToString();
+                        
+                        if (status == 0)
+                        {
+                            // บันทึกไม่สำเร็จ
+                            string errorMsg = string.IsNullOrEmpty(message) ? "บันทึกข้อมูลไม่สำเร็จ" : message;
+                            MessageBox.Show($"บันทึกรายการ {partno} ไม่สำเร็จ\n{errorMsg}", 
+                                           "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            allSuccess = false;
+                            break; // หยุดการบันทึกทันที
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show($"ไม่สามารถบันทึกรายการ {partno} ได้ - ไม่ได้รับผลลัพธ์จากฐานข้อมูล", 
+                                       "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        allSuccess = false;
+                        break;
+                    }
+                }
+                
+                return allSuccess;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"เกิดข้อผิดพลาดในการบันทึกฐานข้อมูล: {ex.Message}", 
+                               "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+        }
+
+        private void ClearSavedItems()
+        {
+            // ล้างรายการที่บันทึกสำเร็จแล้ว
+            foreach (Control control in LayScan.Controls)
+            {
+                if (control is ControlScan controlScan)
+                {
+                    controlScan.Dispose();
+                }
+            }
+            LayScan.Controls.Clear();
+            ListScanInfo.Clear();
+        }
+
+        private void DisplaySummaryData(DataTable dtData)
+        {
+            // ล้างข้อมูลเดิมใน DataGridView
+            DgSummary.Rows.Clear();
+
+            // วนลูปแสดงข้อมูลจาก DataTable
+            foreach (DataRow row in dtData.Rows)
+            {
+                int rowIndex = DgSummary.Rows.Add(
+                    row["WCNO"].ToString(),
+                    row["Partno"].ToString(),
+                    row["Qty"].ToString(),
+                    row["Type"].ToString()
+                );
+
+                // เปลี่ยนสีแถวตามประเภท
+                DataGridViewRow dgvRow = DgSummary.Rows[rowIndex];
+                if (row["Type"].ToString() == "IN")
+                {
+                    dgvRow.DefaultCellStyle.BackColor = Color.LightGreen;
+                    dgvRow.DefaultCellStyle.ForeColor = Color.Black;
+                }
+                else if (row["Type"].ToString() == "OUT")
+                {
+                    dgvRow.DefaultCellStyle.BackColor = Color.LightCoral;
+                    dgvRow.DefaultCellStyle.ForeColor = Color.Black;
+                }
+            }
+        }
+
+        private void BtnClear_Click(object sender, EventArgs e)
+        {
+            // ยืนยันการล้างรายการทั้งหมด
+            if (LayScan.Controls.Count > 0)
+            {
+                DialogResult result = MessageBox.Show(
+                    "ต้องการล้างรายการทั้งหมด ใช่หรือไม่?", 
+                    "ยืนยันการล้าง", 
+                    MessageBoxButtons.YesNo, 
+                    MessageBoxIcon.Question);
+                
+                if (result == DialogResult.Yes)
+                {
+                    // ล้างรายการทั้งหมดใน LayScan
+                    foreach (Control control in LayScan.Controls)
+                    {
+                        if (control is ControlScan controlScan)
+                        {
+                            controlScan.Dispose();
+                        }
+                    }
+                    LayScan.Controls.Clear();
+                    
+                    // ล้าง ListScanInfo ด้วย
+                    ListScanInfo.Clear();
+
+                    // ล้างข้อมูลใน Summary DataGridView ด้วย
+                    DgSummary.Rows.Clear();
+                }
+            }
+            else
+            {
+                MessageBox.Show("ไม่มีรายการที่จะล้าง", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+    }
+}

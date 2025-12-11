@@ -1,0 +1,52 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace DCIWashing
+{
+    public partial class ControlScan : UserControl
+    {
+        private DataTable ObjRMInfo = null;
+        
+        // Event ที่จะ fire เมื่อมีการคลิกปุ่มลบ
+        public event EventHandler DeleteRequested;
+
+        public ControlScan(DataTable objRMInfo)
+        {
+            InitializeComponent();
+            ObjRMInfo = objRMInfo;
+            if (ObjRMInfo != null)
+            {
+                txtRM.Text = objRMInfo.Rows[0]["PARTNO"].ToString();
+            }
+        }
+        
+        public string RM
+        {
+            get { return txtRM.Text; }
+            set { txtRM.Text = value; }
+        }
+
+        private void btnDelete_Click(object sender, EventArgs e)
+        {
+            // แสดง confirmation dialog
+            DialogResult result = MessageBox.Show(
+                $"ต้องการลบรายการ {txtRM.Text} หรือไม่?", 
+                "ยืนยันการลบ", 
+                MessageBoxButtons.YesNo, 
+                MessageBoxIcon.Question);
+            
+            if (result == DialogResult.Yes)
+            {
+                // Fire event เพื่อแจ้งให้ parent form ลบ control นี้
+                DeleteRequested?.Invoke(this, EventArgs.Empty);
+            }
+        }
+    }
+}

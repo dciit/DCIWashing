@@ -1,0 +1,115 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using EKANBAN; // เพิ่ม using สำหรับ IniFile
+
+namespace DCIWashing
+{
+    public partial class FrmScanByModel : Form
+    {
+        private IniFile ini = new IniFile("Config.ini");
+        private string LoggedInUserName = ""; // เก็บชื่อผู้ใช้ที่เข้าสู่ระบบ
+        private DateTime LastActivityTime = DateTime.Now; // เก็บเวลาการใช้งานล่าสุด
+        private Timer sessionTimer; // Timer สำหรับตรวจสอบ session timeout
+
+        // Constructor ใหม่ที่รับชื่อผู้ใช้
+        public FrmScanByModel(string userName)
+        {
+            InitializeComponent();
+            LoggedInUserName = userName;
+            
+            InitializeSessionTimer();
+        }
+
+        public FrmScanByModel()
+        {
+            InitializeComponent();
+            InitializeSessionTimer();
+        }
+
+        private void InitializeSessionTimer()
+        {
+            // ตั้งค่า Timer สำหรับตรวจสอบ session timeout (30 นาที)
+            sessionTimer = new Timer();
+            sessionTimer.Interval = 60000; // ตรวจสอบทุก 1 นาที
+            sessionTimer.Tick += SessionTimer_Tick;
+            sessionTimer.Start();
+
+            // อัพเดต LastActivityTime เมื่อมีการใช้งาน
+            this.MouseMove += (s, e) => UpdateLastActivity();
+            this.KeyDown += (s, e) => UpdateLastActivity();
+        }
+
+        private void SessionTimer_Tick(object sender, EventArgs e)
+        {
+            // ตรวจสอบว่าไม่มีการใช้งานเกิน 30 นาทีหรือไม่
+            if (DateTime.Now.Subtract(LastActivityTime).TotalMinutes > 30)
+            {
+                sessionTimer.Stop();
+                MessageBox.Show("Session หมดอายุ กรุณาเข้าสู่ระบบใหม่", "Session Timeout",
+                               MessageBoxButtons.OK, MessageBoxIcon.Information);
+                BtnLogout_Click(sender, e);
+            }
+        }
+
+        private void UpdateLastActivity()
+        {
+            LastActivityTime = DateTime.Now;
+        }
+
+        private void BtnLogout_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show("ออกจากระบบ ใช่หรือไม่?", "ยืนยันการออก", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (result == DialogResult.Yes)
+            {
+                // ซ่อน Model Form
+                this.Hide();
+
+                // แสดง Login Dialog อีกครั้ง
+                FrmLogin loginForm = new FrmLogin();
+                DialogResult loginResult = loginForm.ShowDialog();
+
+                if (loginResult == DialogResult.OK && loginForm.IsLoginSuccessful)
+                {
+                    // ตรวจสอบ SCAN MODE ที่เลือกและเปิดฟอร์มที่เหมาะสม
+                    if (loginForm.SelectedScanMode == "DWG")
+                    {
+                        // ปิด FrmScanByModel และเปิด FrmMain
+                        this.Close();
+                        FrmMain mainForm = new FrmMain(loginForm.LoggedInUserName);
+                        mainForm.Show();
+                    }
+                    else
+                    {
+                        // ถ้าเลือก MODEL ให้อัพเดตข้อมูลผู้ใช้และแสดง Model Form อีกครั้ง
+                        LoggedInUserName = loginForm.LoggedInUserName;
+                        
+                        // ล้างข้อมูลเดิมในระบบ (ถ้ามี)
+                        // TODO: เพิ่มการล้างข้อมูลตามความเหมาะสม
+
+                        this.Show();
+                    }
+                }
+                else
+                {
+                    // ถ้า Login ไม่สำเร็จ ให้ออกจากโปรแกรม
+                    Application.Exit();
+                }
+            }
+        }
+
+        private void FrmScanByModel_Load(object sender, EventArgs e)
+        {
+            // แสดงชื่อผู้ใช้ที่เข้าสู่ระบบ (ถ้ามี control สำหรับแสดง)
+            // TODO: แสดงชื่อผู้ใช้ใน UI ตามที่มี control
+            
+            // ตัวอย่าง: TxtEmpcode.Text = LoggedInUserName;
+        }
+    }
+}

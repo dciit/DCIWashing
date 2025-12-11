@@ -1,0 +1,843 @@
+﻿namespace DCIWashing
+{
+    partial class FrmMain
+    {
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMain));
+            this.PnWIP = new System.Windows.Forms.Panel();
+            this.DgTransaction = new System.Windows.Forms.DataGridView();
+            this.ColUpdateDatetime = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColDWG = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColType = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColQTY = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColUpdateBy = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.lbTransactionTitle = new System.Windows.Forms.Label();
+            this.TbLastAndWIP = new System.Windows.Forms.TableLayoutPanel();
+            this.PnScan = new System.Windows.Forms.Panel();
+            this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
+            this.LayScan = new System.Windows.Forms.FlowLayoutPanel();
+            this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
+            this.BtnClear = new System.Windows.Forms.Button();
+            this.BtnSave = new System.Windows.Forms.Button();
+            this.TbTransactionAndWIP = new System.Windows.Forms.TableLayoutPanel();
+            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.PnTransaction = new System.Windows.Forms.Panel();
+            this.dataWIP = new System.Windows.Forms.DataGridView();
+            this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.lbWIPTitle = new System.Windows.Forms.Label();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.DtDatePickerTransaction = new System.Windows.Forms.DateTimePicker();
+            this.LbDatePickerTransaction = new System.Windows.Forms.Label();
+            this.LbTitleTransaction = new System.Windows.Forms.Label();
+            this.btnSearch = new System.Windows.Forms.Button();
+            this.TbBody = new System.Windows.Forms.TableLayoutPanel();
+            this.PnSummaryStockOfDay = new System.Windows.Forms.Panel();
+            this.DgSummary = new System.Windows.Forms.DataGridView();
+            this.ColSummaryWCNO = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColSummaryPartno = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColSummaryQty = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColSummaryType = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.BtnIn = new System.Windows.Forms.Button();
+            this.BtnOut = new System.Windows.Forms.Button();
+            this.lbModeTitle = new System.Windows.Forms.Label();
+            this.TxtScan = new System.Windows.Forms.TextBox();
+            this.TxtEmpcode = new System.Windows.Forms.Label();
+            this.lbAppName = new System.Windows.Forms.Label();
+            this.btnOpenGenTag = new System.Windows.Forms.Button();
+            this.PnContent = new System.Windows.Forms.Panel();
+            this.label1 = new System.Windows.Forms.Label();
+            this.PnToolbar = new System.Windows.Forms.Panel();
+            this.tableLayoutToolbar = new System.Windows.Forms.TableLayoutPanel();
+            this.panelLeft = new System.Windows.Forms.Panel();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.lbAppName = new System.Windows.Forms.Label();
+            this.TxtEmpcode = new System.Windows.Forms.Label();
+            this.panelRight = new System.Windows.Forms.Panel();
+            this.pictureBox2 = new System.Windows.Forms.PictureBox();
+            this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
+            this.PnWIP.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.DgTransaction)).BeginInit();
+            this.TbLastAndWIP.SuspendLayout();
+            this.PnScan.SuspendLayout();
+            this.tableLayoutPanel3.SuspendLayout();
+            this.tableLayoutPanel4.SuspendLayout();
+            this.TbTransactionAndWIP.SuspendLayout();
+            this.tableLayoutPanel2.SuspendLayout();
+            this.PnTransaction.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataWIP)).BeginInit();
+            this.panel1.SuspendLayout();
+            this.tableLayoutPanel1.SuspendLayout();
+            this.TbBody.SuspendLayout();
+            this.PnSummaryStockOfDay.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.DgSummary)).BeginInit();
+            this.PnContent.SuspendLayout();
+            this.PnToolbar.SuspendLayout();
+            this.tableLayoutToolbar.SuspendLayout();
+            this.panelLeft.SuspendLayout();
+            this.panelRight.SuspendLayout();
+            this.tableLayoutPanel5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.SuspendLayout();
+            // 
+            // PnWIP
+            // 
+            this.PnWIP.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.PnWIP.Controls.Add(this.DgTransaction);
+            this.PnWIP.Controls.Add(this.lbTransactionTitle);
+            this.PnWIP.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.PnWIP.Location = new System.Drawing.Point(3, 3);
+            this.PnWIP.Name = "PnWIP";
+            this.PnWIP.Size = new System.Drawing.Size(665, 810);
+            this.PnWIP.TabIndex = 0;
+            // 
+            // DgTransaction
+            // 
+            this.DgTransaction.AllowUserToAddRows = false;
+            this.DgTransaction.AllowUserToDeleteRows = false;
+            this.DgTransaction.AllowUserToResizeColumns = false;
+            this.DgTransaction.AllowUserToResizeRows = false;
+            this.DgTransaction.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.DgTransaction.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.DgTransaction.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.ColUpdateDatetime,
+            this.ColDWG,
+            this.ColType,
+            this.ColQTY,
+            this.ColUpdateBy});
+            this.DgTransaction.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.DgTransaction.Location = new System.Drawing.Point(0, 52);
+            this.DgTransaction.MultiSelect = false;
+            this.DgTransaction.Name = "DgTransaction";
+            this.DgTransaction.ReadOnly = true;
+            this.DgTransaction.Size = new System.Drawing.Size(665, 758);
+            this.DgTransaction.TabIndex = 0;
+            // 
+            // ColUpdateDatetime
+            // 
+            this.ColUpdateDatetime.HeaderText = "เวลา";
+            this.ColUpdateDatetime.Name = "ColUpdateDatetime";
+            this.ColUpdateDatetime.ReadOnly = true;
+            // 
+            // ColDWG
+            // 
+            this.ColDWG.HeaderText = "DWG.";
+            this.ColDWG.Name = "ColDWG";
+            this.ColDWG.ReadOnly = true;
+            // 
+            // ColType
+            // 
+            this.ColType.HeaderText = "ประเภท";
+            this.ColType.Name = "ColType";
+            this.ColType.ReadOnly = true;
+            // 
+            // ColQTY
+            // 
+            this.ColQTY.HeaderText = "จำนวน";
+            this.ColQTY.Name = "ColQTY";
+            this.ColQTY.ReadOnly = true;
+            // 
+            // ColUpdateBy
+            // 
+            this.ColUpdateBy.HeaderText = "โดย";
+            this.ColUpdateBy.Name = "ColUpdateBy";
+            this.ColUpdateBy.ReadOnly = true;
+            // 
+            // lbTransactionTitle
+            // 
+            this.lbTransactionTitle.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(70)))), ((int)(((byte)(130)))), ((int)(((byte)(180)))));
+            this.lbTransactionTitle.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lbTransactionTitle.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
+            this.lbTransactionTitle.ForeColor = System.Drawing.Color.White;
+            this.lbTransactionTitle.Location = new System.Drawing.Point(0, 0);
+            this.lbTransactionTitle.Name = "lbTransactionTitle";
+            this.lbTransactionTitle.Size = new System.Drawing.Size(665, 52);
+            this.lbTransactionTitle.TabIndex = 1;
+            this.lbTransactionTitle.Text = "ประวัติการ รับ - นำออก ประจำวัน";
+            this.lbTransactionTitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // TbLastAndWIP
+            // 
+            this.TbLastAndWIP.ColumnCount = 2;
+            this.TbLastAndWIP.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 30F));
+            this.TbLastAndWIP.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 70F));
+            this.TbLastAndWIP.Controls.Add(this.PnScan, 0, 0);
+            this.TbLastAndWIP.Controls.Add(this.TbTransactionAndWIP, 1, 0);
+            this.TbLastAndWIP.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TbLastAndWIP.Location = new System.Drawing.Point(3, 3);
+            this.TbLastAndWIP.Name = "TbLastAndWIP";
+            this.TbLastAndWIP.RowCount = 1;
+            this.TbLastAndWIP.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.TbLastAndWIP.Size = new System.Drawing.Size(1934, 924);
+            this.TbLastAndWIP.TabIndex = 0;
+            // 
+            // PnScan
+            // 
+            this.PnScan.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.PnScan.Controls.Add(this.tableLayoutPanel3);
+            this.PnScan.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.PnScan.Location = new System.Drawing.Point(3, 3);
+            this.PnScan.Name = "PnScan";
+            this.PnScan.Size = new System.Drawing.Size(574, 918);
+            this.PnScan.TabIndex = 0;
+            // 
+            // tableLayoutPanel3
+            // 
+            this.tableLayoutPanel3.BackColor = System.Drawing.Color.White;
+            this.tableLayoutPanel3.ColumnCount = 1;
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel3.Controls.Add(this.LayScan, 0, 0);
+            this.tableLayoutPanel3.Controls.Add(this.tableLayoutPanel4, 0, 1);
+            this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel3.Name = "tableLayoutPanel3";
+            this.tableLayoutPanel3.RowCount = 2;
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(574, 918);
+            this.tableLayoutPanel3.TabIndex = 0;
+            // 
+            // LayScan
+            // 
+            this.LayScan.AutoScroll = true;
+            this.LayScan.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.LayScan.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.LayScan.Location = new System.Drawing.Point(3, 3);
+            this.LayScan.Name = "LayScan";
+            this.LayScan.Size = new System.Drawing.Size(568, 806);
+            this.LayScan.TabIndex = 1;
+            // 
+            // tableLayoutPanel4
+            // 
+            this.tableLayoutPanel4.ColumnCount = 2;
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel4.Controls.Add(this.BtnClear, 0, 0);
+            this.tableLayoutPanel4.Controls.Add(this.BtnSave, 0, 0);
+            this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel4.Location = new System.Drawing.Point(3, 815);
+            this.tableLayoutPanel4.Name = "tableLayoutPanel4";
+            this.tableLayoutPanel4.RowCount = 1;
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel4.Size = new System.Drawing.Size(568, 100);
+            this.tableLayoutPanel4.TabIndex = 2;
+            // 
+            // BtnClear
+            // 
+            this.BtnClear.BackColor = System.Drawing.Color.White;
+            this.BtnClear.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.BtnClear.Font = new System.Drawing.Font("Microsoft Sans Serif", 36F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
+            this.BtnClear.Location = new System.Drawing.Point(287, 3);
+            this.BtnClear.Name = "BtnClear";
+            this.BtnClear.Size = new System.Drawing.Size(278, 94);
+            this.BtnClear.TabIndex = 2;
+            this.BtnClear.Text = "ล้าง";
+            this.BtnClear.UseVisualStyleBackColor = false;
+            this.BtnClear.Click += new System.EventHandler(this.BtnClear_Click);
+            // 
+            // BtnSave
+            // 
+            this.BtnSave.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
+            this.BtnSave.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.BtnSave.Font = new System.Drawing.Font("Microsoft Sans Serif", 36F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
+            this.BtnSave.Location = new System.Drawing.Point(3, 3);
+            this.BtnSave.Name = "BtnSave";
+            this.BtnSave.Size = new System.Drawing.Size(278, 94);
+            this.BtnSave.TabIndex = 1;
+            this.BtnSave.Text = "บันทึก";
+            this.BtnSave.UseVisualStyleBackColor = false;
+            this.BtnSave.Click += new System.EventHandler(this.BtnSave_Click);
+            // 
+            // TbTransactionAndWIP
+            // 
+            this.TbTransactionAndWIP.ColumnCount = 1;
+            this.TbTransactionAndWIP.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.TbTransactionAndWIP.Controls.Add(this.tableLayoutPanel2, 0, 1);
+            this.TbTransactionAndWIP.Controls.Add(this.panel1, 0, 0);
+            this.TbTransactionAndWIP.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TbTransactionAndWIP.Location = new System.Drawing.Point(583, 3);
+            this.TbTransactionAndWIP.Name = "TbTransactionAndWIP";
+            this.TbTransactionAndWIP.RowCount = 2;
+            this.TbTransactionAndWIP.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10.52632F));
+            this.TbTransactionAndWIP.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 89.47369F));
+            this.TbTransactionAndWIP.Size = new System.Drawing.Size(1348, 918);
+            this.TbTransactionAndWIP.TabIndex = 1;
+            // 
+            // tableLayoutPanel2
+            // 
+            this.tableLayoutPanel2.ColumnCount = 2;
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel2.Controls.Add(this.PnWIP, 0, 0);
+            this.tableLayoutPanel2.Controls.Add(this.PnTransaction, 1, 0);
+            this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 99);
+            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
+            this.tableLayoutPanel2.RowCount = 1;
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 816F));
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(1342, 816);
+            this.tableLayoutPanel2.TabIndex = 1;
+            // 
+            // PnTransaction
+            // 
+            this.PnTransaction.Controls.Add(this.dataWIP);
+            this.PnTransaction.Controls.Add(this.lbWIPTitle);
+            this.PnTransaction.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.PnTransaction.Location = new System.Drawing.Point(674, 3);
+            this.PnTransaction.Name = "PnTransaction";
+            this.PnTransaction.Size = new System.Drawing.Size(665, 810);
+            this.PnTransaction.TabIndex = 1;
+            // 
+            // dataWIP
+            // 
+            this.dataWIP.AllowUserToAddRows = false;
+            this.dataWIP.AllowUserToDeleteRows = false;
+            this.dataWIP.AllowUserToResizeColumns = false;
+            this.dataWIP.AllowUserToResizeRows = false;
+            this.dataWIP.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dataWIP.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataWIP.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.dataGridViewTextBoxColumn1,
+            this.dataGridViewTextBoxColumn2,
+            this.dataGridViewTextBoxColumn3,
+            this.dataGridViewTextBoxColumn4});
+            this.dataWIP.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataWIP.Location = new System.Drawing.Point(0, 52);
+            this.dataWIP.MultiSelect = false;
+            this.dataWIP.Name = "dataWIP";
+            this.dataWIP.ReadOnly = true;
+            this.dataWIP.Size = new System.Drawing.Size(665, 758);
+            this.dataWIP.TabIndex = 1;
+            // 
+            // dataGridViewTextBoxColumn1
+            // 
+            this.dataGridViewTextBoxColumn1.HeaderText = "เวลา";
+            this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
+            this.dataGridViewTextBoxColumn1.ReadOnly = true;
+            // 
+            // dataGridViewTextBoxColumn2
+            // 
+            this.dataGridViewTextBoxColumn2.HeaderText = "DWG.";
+            this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
+            this.dataGridViewTextBoxColumn2.ReadOnly = true;
+            // 
+            // dataGridViewTextBoxColumn3
+            // 
+            this.dataGridViewTextBoxColumn3.HeaderText = "จำนวน";
+            this.dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
+            this.dataGridViewTextBoxColumn3.ReadOnly = true;
+            // 
+            // dataGridViewTextBoxColumn4
+            // 
+            this.dataGridViewTextBoxColumn4.HeaderText = "โดย";
+            this.dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
+            this.dataGridViewTextBoxColumn4.ReadOnly = true;
+            // 
+            // lbWIPTitle
+            // 
+            this.lbWIPTitle.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(34)))), ((int)(((byte)(139)))), ((int)(((byte)(34)))));
+            this.lbWIPTitle.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lbWIPTitle.Font = new System.Drawing.Font("Microsoft Tai Le", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
+            this.lbWIPTitle.ForeColor = System.Drawing.Color.White;
+            this.lbWIPTitle.Location = new System.Drawing.Point(0, 0);
+            this.lbWIPTitle.Name = "lbWIPTitle";
+            this.lbWIPTitle.Size = new System.Drawing.Size(665, 52);
+            this.lbWIPTitle.TabIndex = 2;
+            this.lbWIPTitle.Text = "WIP ปัจจุบัน";
+            this.lbWIPTitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // panel1
+            // 
+            this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.panel1.Controls.Add(this.tableLayoutPanel1);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel1.Location = new System.Drawing.Point(3, 3);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(1342, 90);
+            this.panel1.TabIndex = 2;
+            // 
+            // tableLayoutPanel1
+            // 
+            this.tableLayoutPanel1.ColumnCount = 4;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel1.Controls.Add(this.DtDatePickerTransaction, 2, 0);
+            this.tableLayoutPanel1.Controls.Add(this.LbDatePickerTransaction, 1, 0);
+            this.tableLayoutPanel1.Controls.Add(this.LbTitleTransaction, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.btnSearch, 3, 0);
+            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 1;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(1342, 90);
+            this.tableLayoutPanel1.TabIndex = 7;
+            // 
+            // DtDatePickerTransaction
+            // 
+            this.DtDatePickerTransaction.CalendarFont = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.DtDatePickerTransaction.CustomFormat = "dd/MM/yyyy";
+            this.DtDatePickerTransaction.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.DtDatePickerTransaction.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.DtDatePickerTransaction.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.DtDatePickerTransaction.Location = new System.Drawing.Point(207, 3);
+            this.DtDatePickerTransaction.Name = "DtDatePickerTransaction";
+            this.DtDatePickerTransaction.Size = new System.Drawing.Size(211, 38);
+            this.DtDatePickerTransaction.TabIndex = 4;
+            // 
+            // LbDatePickerTransaction
+            // 
+            this.LbDatePickerTransaction.AutoSize = true;
+            this.LbDatePickerTransaction.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.LbDatePickerTransaction.Font = new System.Drawing.Font("Microsoft Sans Serif", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.LbDatePickerTransaction.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.LbDatePickerTransaction.Location = new System.Drawing.Point(101, 0);
+            this.LbDatePickerTransaction.Margin = new System.Windows.Forms.Padding(0);
+            this.LbDatePickerTransaction.Name = "LbDatePickerTransaction";
+            this.LbDatePickerTransaction.Padding = new System.Windows.Forms.Padding(18, 0, 18, 0);
+            this.LbDatePickerTransaction.Size = new System.Drawing.Size(103, 90);
+            this.LbDatePickerTransaction.TabIndex = 5;
+            this.LbDatePickerTransaction.Text = "วันที่";
+            this.LbDatePickerTransaction.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // LbTitleTransaction
+            // 
+            this.LbTitleTransaction.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.LbTitleTransaction.AutoSize = true;
+            this.LbTitleTransaction.Font = new System.Drawing.Font("Microsoft Sans Serif", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.LbTitleTransaction.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.LbTitleTransaction.Location = new System.Drawing.Point(0, 0);
+            this.LbTitleTransaction.Margin = new System.Windows.Forms.Padding(0);
+            this.LbTitleTransaction.Name = "LbTitleTransaction";
+            this.LbTitleTransaction.Padding = new System.Windows.Forms.Padding(18, 0, 0, 0);
+            this.LbTitleTransaction.Size = new System.Drawing.Size(101, 90);
+            this.LbTitleTransaction.TabIndex = 6;
+            this.LbTitleTransaction.Text = "ค้นหา";
+            this.LbTitleTransaction.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // btnSearch
+            // 
+            this.btnSearch.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(46)))), ((int)(((byte)(98)))), ((int)(((byte)(236)))));
+            this.btnSearch.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.btnSearch.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
+            this.btnSearch.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.btnSearch.Location = new System.Drawing.Point(424, 3);
+            this.btnSearch.Name = "btnSearch";
+            this.btnSearch.Size = new System.Drawing.Size(186, 47);
+            this.btnSearch.TabIndex = 7;
+            this.btnSearch.Text = "ค้นหา";
+            this.btnSearch.UseVisualStyleBackColor = false;
+            // 
+            // TbBody
+            // 
+            this.TbBody.ColumnCount = 1;
+            this.TbBody.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.TbBody.Controls.Add(this.TbLastAndWIP, 0, 0);
+            this.TbBody.Controls.Add(this.PnSummaryStockOfDay, 0, 1);
+            this.TbBody.Location = new System.Drawing.Point(3, 111);
+            this.TbBody.Name = "TbBody";
+            this.TbBody.RowCount = 2;
+            this.TbBody.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.TbBody.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 150F));
+            this.TbBody.Size = new System.Drawing.Size(1940, 1080);
+            this.TbBody.TabIndex = 1;
+            // 
+            // PnSummaryStockOfDay
+            // 
+            this.PnSummaryStockOfDay.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.PnSummaryStockOfDay.Controls.Add(this.DgSummary);
+            this.PnSummaryStockOfDay.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.PnSummaryStockOfDay.Location = new System.Drawing.Point(3, 933);
+            this.PnSummaryStockOfDay.Name = "PnSummaryStockOfDay";
+            this.PnSummaryStockOfDay.Size = new System.Drawing.Size(1934, 144);
+            this.PnSummaryStockOfDay.TabIndex = 1;
+            // 
+            // DgSummary
+            // 
+            this.DgSummary.AllowUserToAddRows = false;
+            this.DgSummary.AllowUserToDeleteRows = false;
+            this.DgSummary.AllowUserToResizeColumns = false;
+            this.DgSummary.AllowUserToResizeRows = false;
+            this.DgSummary.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.DgSummary.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.DgSummary.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.ColSummaryWCNO,
+            this.ColSummaryPartno,
+            this.ColSummaryQty,
+            this.ColSummaryType});
+            this.DgSummary.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.DgSummary.Location = new System.Drawing.Point(0, 0);
+            this.DgSummary.MultiSelect = false;
+            this.DgSummary.Name = "DgSummary";
+            this.DgSummary.ReadOnly = true;
+            this.DgSummary.Size = new System.Drawing.Size(1934, 144);
+            this.DgSummary.TabIndex = 0;
+            // 
+            // ColSummaryWCNO
+            // 
+            this.ColSummaryWCNO.HeaderText = "Work Center";
+            this.ColSummaryWCNO.Name = "ColSummaryWCNO";
+            this.ColSummaryWCNO.ReadOnly = true;
+            // 
+            // ColSummaryPartno
+            // 
+            this.ColSummaryPartno.HeaderText = "Part Number";
+            this.ColSummaryPartno.Name = "ColSummaryPartno";
+            this.ColSummaryPartno.ReadOnly = true;
+            // 
+            // ColSummaryQty
+            // 
+            this.ColSummaryQty.HeaderText = "Quantity";
+            this.ColSummaryQty.Name = "ColSummaryQty";
+            this.ColSummaryQty.ReadOnly = true;
+            // 
+            // ColSummaryType
+            // 
+            this.ColSummaryType.HeaderText = "Type";
+            this.ColSummaryType.Name = "ColSummaryType";
+            this.ColSummaryType.ReadOnly = true;
+            // 
+            // BtnIn
+            // 
+            this.BtnIn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(66)))), ((int)(((byte)(173)))), ((int)(((byte)(130)))));
+            this.BtnIn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.BtnIn.Font = new System.Drawing.Font("Microsoft Sans Serif", 24F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
+            this.BtnIn.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.BtnIn.Location = new System.Drawing.Point(589, 51);
+            this.BtnIn.Name = "BtnIn";
+            this.BtnIn.Size = new System.Drawing.Size(279, 61);
+            this.BtnIn.TabIndex = 0;
+            this.BtnIn.Text = "สแกนรับ";
+            this.BtnIn.UseVisualStyleBackColor = false;
+            this.BtnIn.Click += new System.EventHandler(this.BtnIn_Click);
+            // 
+            // BtnOut
+            // 
+            this.BtnOut.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(89)))), ((int)(((byte)(93)))));
+            this.BtnOut.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.BtnOut.Font = new System.Drawing.Font("Microsoft Sans Serif", 24F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
+            this.BtnOut.ForeColor = System.Drawing.Color.White;
+            this.BtnOut.Location = new System.Drawing.Point(892, 51);
+            this.BtnOut.Name = "BtnOut";
+            this.BtnOut.Size = new System.Drawing.Size(279, 61);
+            this.BtnOut.TabIndex = 1;
+            this.BtnOut.Text = "สแกนนำออก";
+            this.BtnOut.UseVisualStyleBackColor = false;
+            this.BtnOut.Click += new System.EventHandler(this.BtnOut_Click);
+            // 
+            // lbModeTitle
+            // 
+            this.lbModeTitle.AutoSize = true;
+            this.lbModeTitle.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
+            this.lbModeTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.lbModeTitle.Location = new System.Drawing.Point(593, 17);
+            this.lbModeTitle.Name = "lbModeTitle";
+            this.lbModeTitle.Size = new System.Drawing.Size(63, 26);
+            this.lbModeTitle.TabIndex = 7;
+            this.lbModeTitle.Text = "โหมด";
+            // 
+            // TxtScan
+            // 
+            this.TxtScan.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
+            this.TxtScan.Cursor = System.Windows.Forms.Cursors.Default;
+            this.TxtScan.Font = new System.Drawing.Font("Microsoft Sans Serif", 40F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
+            this.TxtScan.Location = new System.Drawing.Point(28, 51);
+            this.TxtScan.Name = "TxtScan";
+            this.TxtScan.Size = new System.Drawing.Size(549, 68);
+            this.TxtScan.TabIndex = 2;
+            this.TxtScan.Text = "301_CS_1Y072ACA_072BCB_20H_20J_20L";
+            this.TxtScan.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox1_KeyDown);
+            // 
+            // TxtEmpcode
+            // 
+            this.TxtEmpcode.AutoSize = true;
+            this.TxtEmpcode.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
+            this.TxtEmpcode.Location = new System.Drawing.Point(1750, 19);
+            this.TxtEmpcode.Name = "TxtEmpcode";
+            this.TxtEmpcode.Size = new System.Drawing.Size(102, 24);
+            this.TxtEmpcode.TabIndex = 3;
+            this.TxtEmpcode.Text = "รหัสพนักงาน";
+            // 
+            // lbAppName
+            // 
+            this.lbAppName.AutoSize = true;
+            this.lbAppName.Font = new System.Drawing.Font("Microsoft Tai Le", 24F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbAppName.ForeColor = System.Drawing.Color.Black;
+            this.lbAppName.Location = new System.Drawing.Point(68, 7);
+            this.lbAppName.Name = "lbAppName";
+            this.lbAppName.Size = new System.Drawing.Size(334, 41);
+            this.lbAppName.TabIndex = 5;
+            this.lbAppName.Text = "APS Washing System";
+            // 
+            // btnOpenGenTag
+            // 
+            this.btnOpenGenTag.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(128)))));
+            this.btnOpenGenTag.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.btnOpenGenTag.Font = new System.Drawing.Font("Microsoft Sans Serif", 24F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
+            this.btnOpenGenTag.ForeColor = System.Drawing.Color.White;
+            this.btnOpenGenTag.Location = new System.Drawing.Point(1652, 43);
+            this.btnOpenGenTag.Name = "btnOpenGenTag";
+            this.btnOpenGenTag.Size = new System.Drawing.Size(279, 61);
+            this.btnOpenGenTag.TabIndex = 8;
+            this.btnOpenGenTag.Text = "Create TAG";
+            this.btnOpenGenTag.UseVisualStyleBackColor = false;
+            // 
+            // PnContent
+            // 
+            this.PnContent.BackColor = System.Drawing.Color.White;
+            this.PnContent.Controls.Add(this.label1);
+            this.PnContent.Controls.Add(this.TbBody);
+            this.PnContent.Controls.Add(this.btnOpenGenTag);
+            this.PnContent.Controls.Add(this.TxtScan);
+            this.PnContent.Controls.Add(this.lbModeTitle);
+            this.PnContent.Controls.Add(this.BtnOut);
+            this.PnContent.Controls.Add(this.BtnIn);
+            this.PnContent.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.PnContent.Location = new System.Drawing.Point(3, 69);
+            this.PnContent.Name = "PnContent";
+            this.PnContent.Size = new System.Drawing.Size(1934, 1008);
+            this.PnContent.TabIndex = 0;
+            this.PnContent.Paint += new System.Windows.Forms.PaintEventHandler(this.PnToolbar_Paint);
+            // 
+            // PnToolbar
+            // 
+            this.PnToolbar.AutoSize = true;
+            this.PnToolbar.BackColor = System.Drawing.Color.White;
+            this.PnToolbar.Controls.Add(this.tableLayoutToolbar);
+            this.PnToolbar.Dock = System.Windows.Forms.DockStyle.Top;
+            this.PnToolbar.Location = new System.Drawing.Point(3, 3);
+            this.PnToolbar.Name = "PnToolbar";
+            this.PnToolbar.Size = new System.Drawing.Size(1934, 60);
+            this.PnToolbar.TabIndex = 0;
+            // 
+            // tableLayoutToolbar
+            // 
+            this.tableLayoutToolbar.ColumnCount = 3;
+            this.tableLayoutToolbar.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33F));
+            this.tableLayoutToolbar.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.34F));
+            this.tableLayoutToolbar.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33F));
+            this.tableLayoutToolbar.Controls.Add(this.panelLeft, 0, 0);
+            this.tableLayoutToolbar.Controls.Add(this.TxtEmpcode, 1, 0);
+            this.tableLayoutToolbar.Controls.Add(this.panelRight, 2, 0);
+            this.tableLayoutToolbar.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutToolbar.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutToolbar.Name = "tableLayoutToolbar";
+            this.tableLayoutToolbar.RowCount = 1;
+            this.tableLayoutToolbar.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutToolbar.Size = new System.Drawing.Size(1934, 60);
+            this.tableLayoutToolbar.TabIndex = 0;
+            // 
+            // panelLeft
+            // 
+            this.panelLeft.Controls.Add(this.pictureBox1);
+            this.panelLeft.Controls.Add(this.lbAppName);
+            this.panelLeft.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelLeft.Location = new System.Drawing.Point(3, 3);
+            this.panelLeft.Name = "panelLeft";
+            this.panelLeft.Size = new System.Drawing.Size(638, 54);
+            this.panelLeft.TabIndex = 0;
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.BackColor = System.Drawing.Color.White;
+            this.pictureBox1.Image = global::DCIWashing.Properties.Resources.icon_dci;
+            this.pictureBox1.Location = new System.Drawing.Point(6, 1);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(58, 53);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pictureBox1.TabIndex = 10;
+            this.pictureBox1.TabStop = false;
+            // 
+            // lbAppName
+            // 
+            this.lbAppName.AutoSize = true;
+            this.lbAppName.Font = new System.Drawing.Font("Microsoft Tai Le", 24F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbAppName.ForeColor = System.Drawing.Color.Black;
+            this.lbAppName.Location = new System.Drawing.Point(68, 7);
+            this.lbAppName.Name = "lbAppName";
+            this.lbAppName.Size = new System.Drawing.Size(334, 41);
+            this.lbAppName.TabIndex = 5;
+            this.lbAppName.Text = "APS Washing System";
+            // 
+            // panelRight
+            // 
+            this.panelRight.Controls.Add(this.pictureBox2);
+            this.panelRight.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelRight.Location = new System.Drawing.Point(1291, 3);
+            this.panelRight.Name = "panelRight";
+            this.panelRight.Size = new System.Drawing.Size(640, 54);
+            this.panelRight.TabIndex = 2;
+            // 
+            // pictureBox2
+            // 
+            this.pictureBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.pictureBox2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pictureBox2.Image = global::DCIWashing.Properties.Resources.icons8_shutdown_80;
+            this.pictureBox2.Location = new System.Drawing.Point(580, 3);
+            this.pictureBox2.Name = "pictureBox2";
+            this.pictureBox2.Size = new System.Drawing.Size(54, 47);
+            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pictureBox2.TabIndex = 11;
+            this.pictureBox2.TabStop = false;
+            this.pictureBox2.Click += new System.EventHandler(this.BtnLogout_Click);
+            // 
+            // tableLayoutPanel5
+            // 
+            this.tableLayoutPanel5.ColumnCount = 1;
+            this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel5.Controls.Add(this.PnContent, 0, 1);
+            this.tableLayoutPanel5.Controls.Add(this.PnToolbar, 0, 0);
+            this.tableLayoutPanel5.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel5.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel5.Name = "tableLayoutPanel5";
+            this.tableLayoutPanel5.RowCount = 2;
+            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel5.Size = new System.Drawing.Size(1940, 1080);
+            this.tableLayoutPanel5.TabIndex = 0;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Microsoft Tai Le", 24F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.ForeColor = System.Drawing.Color.Black;
+            this.label1.Location = new System.Drawing.Point(9, 10);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(131, 41);
+            this.label1.TabIndex = 12;
+            this.label1.Text = "SCAN : ";
+            // 
+            // FrmMain
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(1940, 1080);
+            this.Controls.Add(this.tableLayoutPanel5);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Name = "FrmMain";
+            this.Text = "หน้าหลักระบบเครื่องล้าง";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            this.Load += new System.EventHandler(this.FrmMain_Load);
+            this.PnWIP.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.DgTransaction)).EndInit();
+            this.TbLastAndWIP.ResumeLayout(false);
+            this.PnScan.ResumeLayout(false);
+            this.tableLayoutPanel3.ResumeLayout(false);
+            this.tableLayoutPanel4.ResumeLayout(false);
+            this.TbTransactionAndWIP.ResumeLayout(false);
+            this.tableLayoutPanel2.ResumeLayout(false);
+            this.PnTransaction.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dataWIP)).EndInit();
+            this.panel1.ResumeLayout(false);
+            this.tableLayoutPanel1.ResumeLayout(false);
+            this.tableLayoutPanel1.PerformLayout();
+            this.TbBody.ResumeLayout(false);
+            this.PnSummaryStockOfDay.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.DgSummary)).EndInit();
+            this.PnContent.ResumeLayout(false);
+            this.PnContent.PerformLayout();
+            this.PnToolbar.ResumeLayout(false);
+            this.tableLayoutToolbar.ResumeLayout(false);
+            this.tableLayoutToolbar.PerformLayout();
+            this.panelLeft.ResumeLayout(false);
+            this.panelLeft.PerformLayout();
+            this.panelRight.ResumeLayout(false);
+            this.tableLayoutPanel5.ResumeLayout(false);
+            this.tableLayoutPanel5.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            this.ResumeLayout(false);
+
+        }
+
+        #endregion
+        private System.Windows.Forms.Panel PnWIP;
+        private System.Windows.Forms.TableLayoutPanel TbLastAndWIP;
+        private System.Windows.Forms.TableLayoutPanel TbBody;
+        private System.Windows.Forms.Panel PnSummaryStockOfDay;
+        private System.Windows.Forms.DataGridView DgTransaction;
+        private System.Windows.Forms.Label lbTransactionTitle;
+        private System.Windows.Forms.Label lbWIPTitle;
+        private System.Windows.Forms.Panel PnScan;
+        private System.Windows.Forms.FlowLayoutPanel LayScan;
+        private System.Windows.Forms.TableLayoutPanel TbTransactionAndWIP;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
+        private System.Windows.Forms.Panel PnTransaction;
+        private System.Windows.Forms.DataGridView dataWIP;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Label LbDatePickerTransaction;
+        private System.Windows.Forms.DateTimePicker DtDatePickerTransaction;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.Label LbTitleTransaction;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColUpdateDatetime;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColDWG;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColType;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColQTY;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColUpdateBy;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
+        private System.Windows.Forms.Button BtnClear;
+        private System.Windows.Forms.Button BtnSave;
+        private System.Windows.Forms.Button btnSearch;
+        private System.Windows.Forms.DataGridView DgSummary;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColSummaryWCNO;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColSummaryPartno;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColSummaryQty;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColSummaryType;
+        private System.Windows.Forms.Button BtnIn;
+        private System.Windows.Forms.Button BtnOut;
+        private System.Windows.Forms.Label lbModeTitle;
+        private System.Windows.Forms.TextBox TxtScan;
+        private System.Windows.Forms.Label TxtEmpcode;
+        private System.Windows.Forms.Label lbAppName;
+        private System.Windows.Forms.Button btnOpenGenTag;
+        private System.Windows.Forms.Panel PnContent;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Panel PnToolbar;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutToolbar;
+        private System.Windows.Forms.Panel panelLeft;
+        private System.Windows.Forms.Panel panelRight;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel5;
+        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox pictureBox2;
+    }
+}

@@ -1,0 +1,172 @@
+﻿using DCIWashing.Props;
+using EKANBAN;
+using EKBPartStock;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Data.SqlClient;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Xml.Linq;
+
+namespace DCIWashing
+{
+    public partial class FrmMain : Form
+    {
+        SqlConnectDB dbSCM = new SqlConnectDB("dbSCM");
+        private IniFile ini = new IniFile("Config.ini");
+        private string ConfWCNO = "";
+        private string MethodStart = "";
+        private string str = "";
+        private Services oServ = new Services();
+        private List<PropTransaction> dtTransaction = new List<PropTransaction>();
+        private DataTable dtWIPs = new DataTable();
+        private DataTable dtSummaryOfDay = new DataTable();
+        private List<PropRMInfo> ListScanInfo = new List<PropRMInfo>();
+        public FrmMain()
+        {
+            InitializeComponent();
+        }
+
+        private void BtnLogout_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show("ออกจากระบบ ใช่หรือไม่?", "ยืนยันการออก", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (result == DialogResult.Yes)
+            {
+                Application.Exit();
+            }
+        }
+
+        private void BtnCreateTag_Click(object sender, EventArgs e)
+        {
+            // เปิด modal สำหรับสร้าง TAG
+            FrmCreateTag createTagForm = new FrmCreateTag();
+            createTagForm.ShowDialog();
+        }
+
+        private void textBox1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                string inputText = TxtScan.Text.Trim();
+
+                // ตรวจสอบว่ามีข้อความหรือไม่
+                if (!string.IsNullOrEmpty(inputText))
+                {
+                    CreateScanControl(inputText);
+                    TxtScan.Clear(); // ล้างข้อความใน TextBox
+                }
+
+                e.Handled = true; // ป้องกันเสียง beep
+            }
+        }
+
+        private void CreateScanControl(string ScanValue)
+        {
+            DataTable ObjRMInfo = GetRMInfo(ScanValue);
+            ControlScan ItemScan = new ControlScan(ObjRMInfo);
+            LayScan.Controls.Add(ItemScan);
+        }
+        internal DataTable GetRMInfo(string scanValue)
+        {
+            string str = $@"exec sp_aps_washing 'rminfo','{scanValue}'";
+            SqlCommand sql = new SqlCommand();
+            sql.CommandText = str;
+            DataTable dtRMInfo  = dbSCM.Query(sql);
+            if (dtRMInfo.Rows.Count > 0)
+            {
+                return dtRMInfo;
+            }
+            else
+            {
+                MessageBox.Show("ไม่สามารถสแกนงานได้ เนื่องจากข้อมูล Master ไม่ครบถ้วน ติดต่อทีมงาน IT (250) เบียร์");
+                return null;
+            }
+        }
+
+        private void PnToolbar_Paint(object sender, PaintEventArgs e)
+        {
+        }
+
+        private void LoadTransaction()
+        {
+            //DataPartStock = oServ.GetPartStockInfo(ConfWCNO);
+            dtTransaction = oServ.GetTransactionOfDay(ConfWCNO, DtDatePickerTransaction.Value, DateTime.Now.AddHours(-8).Hour >= 12 ? "N" : "D");
+            DgTransaction.Rows.Clear();
+            if (dtTransaction.Count > 0)
+            {
+                foreach (PropTransaction item in dtTransaction)
+                {
+
+                    int rowIndex = DgTransaction.Rows.Add(item.time, item.partno, item.type, item.qty, item.createBy);
+                    //DataGridViewRow row = DgTransaction.Rows[rowIndex];
+                    //if (item.type == "IN")
+                    //{
+                    //    row.Cells[3].Style.BackColor = System.Drawing.Color.LightGreen;
+                    //    row.Cells[4].Style.BackColor = System.Drawing.Color.LightGreen;
+                    //    row.Cells[4].Style.Font = new Font(DgTransaction.Font, FontStyle.Bold);
+                    //}
+                    //else if (item.type == "OUT")
+                    //{
+                    //    row.Cells[3].Style.BackColor = System.Drawing.Color.LightCoral;
+                    //    row.Cells[4].Style.BackColor = System.Drawing.Color.LightCoral;
+                    //    row.Cells[4].Style.Font = new Font(DgTransaction.Font, FontStyle.Bold);
+                    //}
+                }
+            }
+        }
+        private void LoadWIP()
+        {
+
+        }
+        private void LoadSummaryOfDay()
+        {
+
+        }
+
+        private void FrmMain_Load(object sender, EventArgs e)
+        {
+            ConfWCNO = ini.GetString("CONFIG", "WCNO", "");
+            MethodStart = ini.GetString("CONFIG", "METHOD", "");
+            ViewMethod(MethodStart);
+            if (ConfWCNO != "")
+            {
+                LoadTransaction();
+            }
+        }
+
+        private void ViewMethod(string methodStart)
+        {
+            if (methodStart == "IN")
+            {
+                //BtnIn.BackColor = Color.FromArgb(66, 173, 130, 1);
+                //BtnOut.BackColor = SystemColors.ButtonFace;
+            }
+            else
+            {
+                //BtnIn.BackColor = SystemColors.ButtonFace;
+            }
+        }
+
+        private void BtnSave_Click(object sender, EventArgs e)
+        {
+            foreach (Control ItemScan in LayScan.Controls)
+            {
+                if (ItemScan is ControlScan oControlScan)
+                {
+                    // ดึงข้อมูลจาก Properties
+                    string rm = oControlScan.RM;
+                    // ตรวจสอบข้อมูลและเก็บ
+                    ListScanInfo.Add(new PropRMInfo()
+                    {
+                        rm = rm
+                    });
+                }
+            }
+        }
+    }
+}

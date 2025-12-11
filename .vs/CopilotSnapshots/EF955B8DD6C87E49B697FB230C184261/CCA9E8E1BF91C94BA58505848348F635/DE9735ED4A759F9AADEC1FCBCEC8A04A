@@ -1,0 +1,72 @@
+﻿using System;
+using System.Data;
+using System.Drawing;
+using System.Windows.Forms;
+
+namespace DCIWashing
+{
+    public partial class ControlScan : UserControl
+    {
+        private DataTable ObjRMInfo = null;
+        private string ScanMode = "IN";
+        
+        // Event ที่จะ fire เมื่อมีการคลิกปุ่มลบ
+        public event EventHandler DeleteRequested;
+
+        public ControlScan(DataTable objRMInfo, string scanMode = "IN")
+        {
+            InitializeComponent();
+            ObjRMInfo = objRMInfo;
+            ScanMode = scanMode;
+            
+            if (ObjRMInfo != null)
+            {
+                txtRM.Text = objRMInfo.Rows[0]["PARTNO"].ToString();
+                InpBasket.Text = objRMInfo.Rows[0]["QTY"].ToString();
+            }
+            
+            // ตั้งสีและข้อความของ PnType ตามโหมด
+            SetTypePanel();
+        }
+        
+        private void SetTypePanel()
+        {
+            if (ScanMode == "IN")
+            {
+                // โหมดสแกนรับ - แสดงสีเขียว
+                PnType.BackColor = Color.FromArgb(66, 173, 130);
+                lbType.Text = "IN";
+                lbType.ForeColor = Color.White;
+            }
+            else
+            {
+                // โหมดสแกนนำออก - แสดงสีแดง
+                PnType.BackColor = Color.FromArgb(255, 89, 93);
+                lbType.Text = "OUT";
+                lbType.ForeColor = Color.White;
+            }
+        }
+        
+        public string RM
+        {
+            get { return txtRM.Text; }
+            set { txtRM.Text = value; }
+        }
+
+        private void btnDelete_Click(object sender, EventArgs e)
+        {
+            // แสดง confirmation dialog
+            DialogResult result = MessageBox.Show(
+                $"ต้องการลบรายการ {txtRM.Text} หรือไม่?", 
+                "ยืนยันการลบ", 
+                MessageBoxButtons.YesNo, 
+                MessageBoxIcon.Question);
+            
+            if (result == DialogResult.Yes)
+            {
+                // Fire event เพื่อแจ้งให้ parent form ลบ control นี้
+                DeleteRequested?.Invoke(this, EventArgs.Empty);
+            }
+        }
+    }
+}

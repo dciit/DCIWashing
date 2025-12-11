@@ -1,0 +1,362 @@
+﻿using DCIWashing.Props;
+using EKANBAN;
+using EKBPartStock;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Data.SqlClient;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Xml.Linq;
+
+namespace DCIWashing
+{
+    public partial class FrmMain : Form
+    {
+        SqlConnectDB dbSCM = new SqlConnectDB("dbSCM");
+        private IniFile ini = new IniFile("Config.ini");
+        private string ConfWCNO = "";
+        private string MethodStart = "";
+        private string str = "";
+        private Services oServ = new Services();
+        private List<PropTransaction> dtTransaction = new List<PropTransaction>();
+        private DataTable dtWIPs = new DataTable();
+        private DataTable dtSummaryOfDay = new DataTable();
+        private List<PropRMInfo> ListScanInfo = new List<PropRMInfo>();
+        
+        // เพิ่มตัวแปรเพื่อติดตามโหมดปัจจุบัน
+        private string CurrentScanMode = "IN"; // Default เป็น "IN" (สแกนรับ)
+        private string LoggedInUserName = ""; // เก็บชื่อผู้ใช้ที่เข้าสู่ระบบ
+        
+        public FrmMain()
+        {
+            InitializeComponent();
+        }
+
+        // Constructor ใหม่ที่รับชื่อผู้ใช้
+        public FrmMain(string userName)
+        {
+            InitializeComponent();
+            LoggedInUserName = userName;
+        }
+
+        private void BtnLogout_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show("ออกจากระบบ ใช่หรือไม่?", "ยืนยันการออก", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (result == DialogResult.Yes)
+            {
+                Application.Exit();
+            }
+        }
+
+        private void BtnCreateTag_Click(object sender, EventArgs e)
+        {
+            // เปิด modal สำหรับสร้าง TAG
+            FrmCreateTag createTagForm = new FrmCreateTag();
+            createTagForm.ShowDialog();
+        }
+
+        private void BtnIn_Click(object sender, EventArgs e)
+        {
+            // เปลี่ยนโหมดเป็น "IN" (สแกนรับ)
+            CurrentScanMode = "IN";
+            UpdateButtonStates();
+        }
+
+        private void BtnOut_Click(object sender, EventArgs e)
+        {
+            // เปลี่ยนโหมดเป็น "OUT" (สแกนนำออก)
+            CurrentScanMode = "OUT";
+            UpdateButtonStates();
+        }
+
+        private void UpdateButtonStates()
+        {
+            // อัพเดตสีของปุ่มตามโหมดที่เลือก
+            if (CurrentScanMode == "IN")
+            {
+                // ปุ่มสแกนรับ active (สีเขียวเข้ม)
+                BtnIn.BackColor = Color.FromArgb(66, 173, 130);
+                BtnIn.ForeColor = Color.White;
+                
+                // ปุ่มสแกนนำออก inactive (สีเทา)
+                BtnOut.BackColor = SystemColors.ButtonFace;
+                BtnOut.ForeColor = Color.Black;
+            }
+            else
+            {
+                // ปุ่มสแกนนำออก active (สีแดง)
+                BtnOut.BackColor = Color.FromArgb(255, 89, 93);
+                BtnOut.ForeColor = Color.White;
+                
+                // ปุ่มสแกนรับ inactive (สีเทา)
+                BtnIn.BackColor = SystemColors.ButtonFace;
+                BtnIn.ForeColor = Color.Black;
+            }
+        }
+
+        private void textBox1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                string inputText = TxtScan.Text.Trim();
+
+                // ตรวจสอบว่ามีข้อความหรือไม่
+                if (!string.IsNullOrEmpty(inputText))
+                {
+                    CreateScanControl(inputText);
+                    TxtScan.Clear(); // ล้างข้อความใน TextBox
+                }
+
+                e.Handled = true; // ป้องกันเสียง beep
+            }
+        }
+
+        private void CreateScanControl(string ScanValue)
+        {
+            DataTable ObjRMInfo = GetRMInfo(ScanValue);
+            if (ObjRMInfo != null)
+            {
+                ControlScan ItemScan = new ControlScan(ObjRMInfo, CurrentScanMode);
+                
+                // Subscribe ไปยัง DeleteRequested event
+                ItemScan.DeleteRequested += ItemScan_DeleteRequested;
+                
+                LayScan.Controls.Add(ItemScan);
+            }
+        }
+
+        private void ItemScan_DeleteRequested(object sender, EventArgs e)
+        {
+            // ลบ ControlScan ออกจาก LayScan
+            if (sender is ControlScan controlToDelete)
+            {
+                LayScan.Controls.Remove(controlToDelete);
+                
+                // Dispose control เพื่อปล่อย memory
+                controlToDelete.Dispose();
+            }
+        }
+
+        internal DataTable GetRMInfo(string scanValue)
+        {
+            string str = $@"exec sp_aps_washing 'rm_qr_washing_info' ,'{scanValue}'";
+            SqlCommand sql = new SqlCommand();
+            sql.CommandText = str;
+            DataTable dtRMInfo = dbSCM.Query(sql);
+            if (dtRMInfo.Rows.Count > 0)
+            {
+                return dtRMInfo;
+            }
+            else
+            {
+                MessageBox.Show("ไม่สามารถสแกนงานได้ เนื่องจากข้อมูล Master ไม่ครบถ้วน ติดต่อทีมงาน IT (250) เบียร์");
+                return null;
+            }
+        }
+
+        private void PnToolbar_Paint(object sender, PaintEventArgs e)
+        {
+        }
+
+        private void LoadTransaction()
+        {
+            //DataPartStock = oServ.GetPartStockInfo(ConfWCNO);
+            dtTransaction = oServ.GetTransactionOfDay(ConfWCNO, DtDatePickerTransaction.Value, DateTime.Now.AddHours(-8).Hour >= 12 ? "N" : "D");
+            DgTransaction.Rows.Clear();
+            if (dtTransaction.Count > 0)
+            {
+                foreach (PropTransaction item in dtTransaction)
+                {
+
+                    int rowIndex = DgTransaction.Rows.Add(item.time, item.partno, item.type, item.qty, item.createBy);
+                    //DataGridViewRow row = DgTransaction.Rows[rowIndex];
+                    //if (item.type == "IN")
+                    //{
+                    //    row.Cells[3].Style.BackColor = System.Drawing.Color.LightGreen;
+                    //    row.Cells[4].Style.BackColor = System.Drawing.Color.LightGreen;
+                    //    row.Cells[4].Style.Font = new Font(DgTransaction.Font, FontStyle.Bold);
+                    //}
+                    //else if (item.type == "OUT")
+                    //{
+                    //    row.Cells[3].Style.BackColor = System.Drawing.Color.LightCoral;
+                    //    row.Cells[4].Style.BackColor = System.Drawing.Color.LightCoral;
+                    //    row.Cells[4].Style.Font = new Font(DgTransaction.Font, FontStyle.Bold);
+                    //}
+                }
+            }
+        }
+        private void LoadWIP()
+        {
+
+        }
+        private void LoadSummaryOfDay()
+        {
+
+        }
+
+        private void FrmMain_Load(object sender, EventArgs e)
+        {
+            ConfWCNO = ini.GetString("CONFIG", "WCNO", "");
+            MethodStart = ini.GetString("CONFIG", "METHOD", "");
+            
+            // ตั้งโหมดเริ่มต้นจากการตั้งค่า หรือ default เป็น "IN"
+            CurrentScanMode = string.IsNullOrEmpty(MethodStart) ? "IN" : MethodStart;
+            
+            ViewMethod(CurrentScanMode);
+            UpdateButtonStates(); // อัพเดตสถานะปุ่มเมื่อเริ่มโปรแกรม
+            
+            if (ConfWCNO != "")
+            {
+                LoadTransaction();
+            }
+        }
+
+        private void ViewMethod(string methodStart)
+        {
+            CurrentScanMode = methodStart;
+            UpdateButtonStates();
+        }
+
+        private void BtnSave_Click(object sender, EventArgs e)
+        {
+            // ตรวจสอบว่ามีรายการที่จะบันทึกหรือไม่
+            if (LayScan.Controls.Count == 0)
+            {
+                MessageBox.Show("ไม่มีรายการที่จะบันทึก", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            // สร้าง DataTable สำหรับเก็บข้อมูล
+            DataTable dtSaveData = new DataTable();
+            dtSaveData.Columns.Add("Partno", typeof(string));
+            dtSaveData.Columns.Add("Qty", typeof(int));
+            dtSaveData.Columns.Add("Type", typeof(string));
+
+            // เก็บข้อมูลจาก ControlScan ลง DataTable
+            foreach (Control ItemScan in LayScan.Controls)
+            {
+                if (ItemScan is ControlScan oControlScan)
+                {
+                    DataRow row = dtSaveData.NewRow();
+                    row["Partno"] = oControlScan.RM;
+                    
+                    // แปลง Qty เป็น int และตรวจสอบความถูกต้อง
+                    if (int.TryParse(oControlScan.Qty, out int qty))
+                    {
+                        row["Qty"] = qty;
+                    }
+                    else
+                    {
+                        row["Qty"] = 0; // ถ้าแปลงไม่ได้ให้ใส่ 0
+                    }
+                    
+                    row["Type"] = oControlScan.Type;
+                    dtSaveData.Rows.Add(row);
+                }
+            }
+
+            // แสดงผลใน DataGridView ด้านล่าง
+            DisplaySummaryData(dtSaveData);
+
+            // แสดงข้อความยืนยัน
+            MessageBox.Show($"บันทึกข้อมูลเรียบร้อยแล้ว จำนวน {dtSaveData.Rows.Count} รายการ", 
+                           "บันทึกสำเร็จ", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+            // ส่งข้อมูลไปฐานข้อมูล (ถ้าต้องการ)
+            SaveToDatabase(dtSaveData);
+        }
+
+        private void DisplaySummaryData(DataTable dtData)
+        {
+            // ล้างข้อมูลเดิมใน DataGridView
+            DgSummary.Rows.Clear();
+
+            // วนลูปแสดงข้อมูลจาก DataTable
+            foreach (DataRow row in dtData.Rows)
+            {
+                int rowIndex = DgSummary.Rows.Add(
+                    row["Partno"].ToString(),
+                    row["Qty"].ToString(),
+                    row["Type"].ToString()
+                );
+
+                // เปลี่ยนสีแถวตามประเภท
+                DataGridViewRow dgvRow = DgSummary.Rows[rowIndex];
+                if (row["Type"].ToString() == "IN")
+                {
+                    dgvRow.DefaultCellStyle.BackColor = Color.LightGreen;
+                    dgvRow.DefaultCellStyle.ForeColor = Color.Black;
+                }
+                else if (row["Type"].ToString() == "OUT")
+                {
+                    dgvRow.DefaultCellStyle.BackColor = Color.LightCoral;
+                    dgvRow.DefaultCellStyle.ForeColor = Color.Black;
+                }
+            }
+        }
+
+        private void SaveToDatabase(DataTable dtData)
+        {
+            try
+            {
+                // วนลูปบันทึกข้อมูลลงฐานข้อมูล
+                foreach (DataRow row in dtData.Rows)
+                {
+                    string sql = $@"INSERT INTO TransactionLog (Partno, Qty, Type, CreateDate, CreateBy) 
+                                   VALUES ('{row["Partno"]}', {row["Qty"]}, '{row["Type"]}', GETDATE(), 'SYSTEM')";
+                    
+                    // สามารถใช้ SqlConnectDB เพื่อบันทึกลงฐานข้อมูล
+                    // dbSCM.ExecuteCommand(sql);
+                }
+
+                // ปล่อย comment ด้านบนออกเมื่อต้องการบันทึกจริงลงฐานข้อมูล
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"เกิดข้อผิดพลาดในการบันทึกฐานข้อมูล: {ex.Message}", 
+                               "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void BtnClear_Click(object sender, EventArgs e)
+        {
+            // ยืนยันการล้างรายการทั้งหมด
+            if (LayScan.Controls.Count > 0)
+            {
+                DialogResult result = MessageBox.Show(
+                    "ต้องการล้างรายการทั้งหมด ใช่หรือไม่?", 
+                    "ยืนยันการล้าง", 
+                    MessageBoxButtons.YesNo, 
+                    MessageBoxIcon.Question);
+                
+                if (result == DialogResult.Yes)
+                {
+                    // ล้างรายการทั้งหมดใน LayScan
+                    foreach (Control control in LayScan.Controls)
+                    {
+                        if (control is ControlScan controlScan)
+                        {
+                            controlScan.Dispose();
+                        }
+                    }
+                    LayScan.Controls.Clear();
+                    
+                    // ล้าง ListScanInfo ด้วย
+                    ListScanInfo.Clear();
+
+                    // ล้างข้อมูลใน Summary DataGridView ด้วย
+                    DgSummary.Rows.Clear();
+                }
+            }
+            else
+            {
+                MessageBox.Show("ไม่มีรายการที่จะล้าง", "แจ้งเตือน", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+    }
+}

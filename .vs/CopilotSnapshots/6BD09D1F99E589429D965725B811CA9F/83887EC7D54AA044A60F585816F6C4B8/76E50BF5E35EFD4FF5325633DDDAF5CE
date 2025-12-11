@@ -1,0 +1,518 @@
+﻿using DCIWashing.Props;
+using EKANBAN;
+using EKBPartStock;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Data.SqlClient;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Xml.Linq;
+
+namespace DCIWashing
+{
+    public partial class FrmMain : Form
+    {
+        SqlConnectDB dbSCM = new SqlConnectDB("dbSCM");
+        private IniFile ini = new IniFile("Config.ini");
+        private string ConfWCNO = "";
+        private string MethodStart = "";
+        private string Mode = "";
+        private string YmdNow = DateTime.Now.AddHours(-8).ToString("yyyyMMdd");
+        private Services oServ = new Services();
+        private List<PropTransaction> dtTransaction = new List<PropTransaction>();
+        private DataTable dtWIPs = new DataTable();
+        private DataTable dtSummaryOfDay = new DataTable();
+        private List<PropRMInfo> ListScanInfo = new List<PropRMInfo>();
+
+        // เพิ่มตัวแปรเพื่อติดตามโหมดปัจจุบัน
+        private string CurrentScanMode = "IN"; // Default เป็น "IN" (สแกนรับ)
+        private string LoggedInUserName = ""; // เก็บชื่อผู้ใช้ที่เข้าสู่ระบบ
+        private DateTime LastActivityTime = DateTime.Now; // เก็บเวลาการใช้งานล่าสุด
+        private Timer sessionTimer; // Timer สำหรับตรวจสอบ session timeout
+
+        // Constructor ใหม่ที่รับชื่อผู้ใช้
+        public FrmMain(string userName)
+        {
+            InitializeComponent();
+            LoggedInUserName = userName;
+            InitializeSessionTimer();
+        }
+
+        public FrmMain()
+        {
+            InitializeComponent();
+            InitializeSessionTimer();
+        }
+
+        private void InitializeSessionTimer()
+        {
+            // ตั้งค่า Timer สำหรับตรวจสอบ session timeout (30 นาที)
+            sessionTimer = new Timer();
+            sessionTimer.Interval = 60000; // ตรวจสอบทุก 1 นาที
+            sessionTimer.Tick += SessionTimer_Tick;
+            sessionTimer.Start();
+
+            // อัพเดต LastActivityTime เมื่อมีการใช้งาน
+            this.MouseMove += (s, e) => UpdateLastActivity();
+            this.KeyDown += (s, e) => UpdateLastActivity();
+        }
+
+        private void SessionTimer_Tick(object sender, EventArgs e)
+        {
+            // ตรวจสอบว่าไม่มีการใช้งานเกิน 30 นาทีหรือไม่
+            if (DateTime.Now.Subtract(LastActivityTime).TotalMinutes > 30)
+            {
+                sessionTimer.Stop();
+                MessageBox.Show("Session หมดอายุ กรุณาเข้าสู่ระบบใหม่", "Session Timeout",
+                               MessageBoxButtons.OK, MessageBoxIcon.Information);
+                BtnLogout_Click(sender, e);
+            }
+        }
+
+        private void UpdateLastActivity()
+        {
+            LastActivityTime = DateTime.Now;
+        }
+
+        private void BtnLogout_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show("ออกจากระบบ ใช่หรือไม่?", "ยืนยันการออก", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (result == DialogResult.Yes)
+            {
+                // ซ่อน Main Form
+                this.Hide();
+
+                // แสดง Login Dialog อีกครั้ง
+                FrmLogin loginForm = new FrmLogin();
+                DialogResult loginResult = loginForm.ShowDialog();
+
+                if (loginResult == DialogResult.OK && loginForm.IsLoginSuccessful)
+                {
+                    // ถ้า Login สำเร็จ อัพเดตข้อมูลผู้ใช้และแสดง Main Form อีกครั้ง
+                    LoggedInUserName = loginForm.LoggedInUserName;
+                    TxtEmpcode.Text = LoggedInUserName;
+
+                    // ล้างข้อมูลเดิมในระบบ
+
+                    this.Show();
+                }
+                else
+                {
+                    // ถ้า Login ไม่สำเร็จ ให้ออกจากโปรแกรม
+                    Application.Exit();
+                }
+            }
+        }
+
+
+        internal DataTable GetRMInfo(string scanValue)
+        {
+            string str = $@"exec sp_aps_washing 'rm_qr_washing_info' ,'{scanValue}'";
+            SqlCommand sql = new SqlCommand();
+            sql.CommandText = str;
+            DataTable dtRMInfo = dbSCM.Query(sql);
+            if (dtRMInfo.Rows.Count > 0)
+            {
+                return dtRMInfo;
+            }
+            else
+            {
+                MessageBox.Show("ไม่สามารถสแกนงานได้ เนื่องจากข้อมูล Master ไม่ครบถ้วน ติดต่อทีมงาน IT (250) เบียร์");
+                return null;
+            }
+        }
+
+        private void PnToolbar_Paint(object sender, PaintEventArgs e)
+        {
+        }
+
+        private void LoadTransaction()
+        {
+
+        }
+        private void LoadWIP()
+        {
+
+        }
+        private void LoadSummaryOfDay()
+        {
+
+        }
+
+        private void FrmMain_Load(object sender, EventArgs e)
+        {
+            ConfWCNO = ini.GetString("CONFIG", "WCNO", "");
+            MethodStart = ini.GetString("CONFIG", "METHOD", "");
+            Mode = ini.GetString("CONFIG", "MODE", "IN");
+            LoadMode();
+            LoadWCNO();
+            // แสดงชื่อผู้ใช้ที่เข้าสู่ระบบ
+            if (!string.IsNullOrEmpty(LoggedInUserName))
+            {
+                TxtEmpcode.Text = LoggedInUserName;
+            }
+
+            // ตั้งโหมดเริ่มต้นจากการตั้งค่า หรือ default เป็น "IN"
+            CurrentScanMode = string.IsNullOrEmpty(MethodStart) ? "IN" : MethodStart;
+
+            ViewMethod(CurrentScanMode);
+
+            if (ConfWCNO != "")
+            {
+                LoadTransaction();
+                LoadLogOfDay();
+            }
+        }
+
+        private void LoadMode()
+        {
+            btnOut.Enabled = Mode == "OUT" ? true : false;  
+            btnIn.Enabled = Mode == "IN" ? true : false;
+            if (Mode == "IN")
+            {
+                btnOut.BackColor = Color.FromArgb(224, 224, 224);
+                btnIn.BackColor = Color.FromArgb(66, 173, 130);
+            }
+            else
+            { // MODE = "OUT"
+                btnOut.BackColor = Color.FromArgb(255, 89, 93);
+                btnIn.BackColor = Color.FromArgb(224, 224, 224);    
+            }
+        }
+
+        private void LoadWCNO()
+        {
+            try
+            {
+                string strGetWCNO = $@"exec sp_aps_washing 'master_wcno'";
+                DataTable dtListWCNO = dbSCM.Query(strGetWCNO);
+                if (dtListWCNO.Rows.Count > 0)
+                {
+                    cb_wcno.DataSource = dtListWCNO;
+                    cb_wcno.DisplayMember = "WCNO";
+                    cb_wcno.ValueMember = "WCNO";
+                    if (ConfWCNO != "")
+                    {
+                        cb_wcno.SelectedValue = ConfWCNO;
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("ไม่พบข้อมูลของ WCNO ! Notice = exec sp_aps_wasging 'master_wcno' not return");
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message);
+            }
+        }
+
+        private void LoadLogOfDay()
+        {
+            string str = $@"select  YMD,SHIFT,WCNO,PARTNO,CM,TransType TRANSTYPE,SUM(TransQty) QTY,CreateBy CREATE_BY,CreateDate CREATE_DATE from EKB_WIP_PART_STOCK_TRANSACTION 
+where  RefNo = 'WASHING-SYSTEM' AND WCNO = '808' AND YMD = '20250828' 
+GROUP BY YMD,SHIFT,WCNO,PARTNO,CM,TransType ,CreateBy ,CreateDate 
+ORDER BY CreateDate DESC";
+            DataTable dtLogs = dbSCM.Query(str);
+            if (dtLogs.Rows.Count > 0)
+            {
+                gv_log_scan_of_day.AutoGenerateColumns = false;
+                gv_log_scan_of_day.DataSource = dtLogs;
+                gv_log_scan_of_day.Columns.Add(new DataGridViewTextBoxColumn()
+                {
+                    DataPropertyName = "CREATE_DATE",
+                    HeaderText = "วันเวลา"
+                });
+                gv_log_scan_of_day.Columns.Add(new DataGridViewTextBoxColumn()
+                {
+                    DataPropertyName = "PARTNO",
+                    HeaderText = "PartNo"
+                });
+                gv_log_scan_of_day.Columns.Add(new DataGridViewTextBoxColumn()
+                {
+                    DataPropertyName = "WCNO",
+                    HeaderText = "MODEL"
+                });
+                gv_log_scan_of_day.Columns.Add(new DataGridViewTextBoxColumn()
+                {
+                    DataPropertyName = "TRANSTYPE",
+                    HeaderText = "ประเภท"
+                });
+                gv_log_scan_of_day.Columns.Add(new DataGridViewTextBoxColumn()
+                {
+                    DataPropertyName = "QTY",
+                    HeaderText = "จำนวน"
+                });
+                gv_log_scan_of_day.Columns.Add(new DataGridViewTextBoxColumn()
+                {
+                    DataPropertyName = "CREATE_BY",
+                    HeaderText = "โดย"
+                });
+            }
+        }
+
+        private void ViewMethod(string methodStart)
+        {
+            CurrentScanMode = methodStart;
+        }
+
+
+        private bool SaveToWIPDatabase(DataTable dtData)
+        {
+            try
+            {
+                bool allSuccess = true;
+
+                // วนลูปบันทึกข้อมูลลงฐานข้อมูลแต่ละรายการ
+                foreach (DataRow row in dtData.Rows)
+                {
+                    string wcno = row["WCNO"].ToString();
+                    string partno = row["Partno"].ToString();
+                    string cm = row["CM"].ToString();
+                    int qty = Convert.ToInt32(row["Qty"]);
+
+                    // เรียก stored procedure
+                    string sql = $"exec sp_aps_washing 'insert_wip', '{wcno}', '{partno}', '{cm}', {qty}";
+                    SqlCommand command = new SqlCommand(sql);
+                    DataTable result = dbSCM.Query(command);
+
+                    // ตรวจสอบผลลัพธ์
+                    if (result != null && result.Rows.Count > 0)
+                    {
+                        int status = Convert.ToInt32(result.Rows[0]["status"]);
+                        string message = result.Rows[0]["message"].ToString();
+
+                        if (status == 0)
+                        {
+                            // บันทึกไม่สำเร็จ
+                            string errorMsg = string.IsNullOrEmpty(message) ? "บันทึกข้อมูลไม่สำเร็จ" : message;
+                            MessageBox.Show($"บันทึกรายการ {partno} ไม่สำเร็จ\n{errorMsg}",
+                                           "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            allSuccess = false;
+                            break; // หยุดการบันทึกทันที
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show($"ไม่สามารถบันทึกรายการ {partno} ได้ - ไม่ได้รับผลลัพธ์จากฐานข้อมูล",
+                                       "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        allSuccess = false;
+                        break;
+                    }
+                }
+
+                return allSuccess;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"เกิดข้อผิดพลาดในการบันทึกฐานข้อมูล: {ex.Message}",
+                               "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+        }
+
+        private void tb_scan_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                string inputText = tb_scan.Text.Trim();
+                if (!string.IsNullOrEmpty(inputText))
+                {
+                    AddScanItemToGrid(inputText, CurrentScanMode);
+                    tb_scan.Clear();
+                }
+                e.Handled = true;
+            }
+        }
+
+        private void AddScanItemToGrid(string scanText, string mode)
+        {
+
+            try
+            {
+                string[] rDataOfQrCode = scanText.Split('|');
+                if (rDataOfQrCode.Length == 0)
+                {
+                    MessageBox.Show("รูปแบบการสแกนไม่ถูกต้อง กรุณาตรวจสอบใหม่", "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                var rmInfo = GetRMInfo(scanText);
+                if (rmInfo == null || rmInfo.Rows.Count == 0) return;
+                string part_wcno = rmInfo.Rows[0]["PART_WCNO"].ToString();
+                string partno = rmInfo.Rows[0]["PARTNO"].ToString();
+                string cm = rmInfo.Rows[0]["CM"].ToString();
+                string qty = rmInfo.Columns.Contains("QTY") ? rmInfo.Rows[0]["QTY"].ToString() : "0";
+
+                bool HasData = false;
+                foreach (DataGridViewRow item in gv_list_scan.Rows)
+                {
+                    if (item.Cells["col_partno"].Value != null && item.Cells["col_partno"].Value.ToString() == partno)
+                    {
+                        item.Cells["col_qty"].Value = (Convert.ToInt32(item.Cells["col_qty"].Value) + Convert.ToInt32(qty)).ToString();
+                        HasData = true;
+                    }
+                }
+                if (!HasData)
+                {
+                    if (gv_list_scan.Columns["col_wcno"] == null)
+                    {
+                        gv_list_scan.Columns.Add(new DataGridViewTextBoxColumn()
+                        {
+                            Name = "col_wcno",
+                            Visible = false
+                        });
+                    }
+                     if (gv_list_scan.Columns["col_cm"] == null)
+                    {
+                        gv_list_scan.Columns.Add(new DataGridViewTextBoxColumn()
+                        {
+                            Name = "col_cm",
+                            Visible = false
+                        });
+                    }
+
+                    int rowIndex = gv_list_scan.Rows.Add();
+                    var row = gv_list_scan.Rows[rowIndex];
+                    row.Cells["col_type"].Value = mode;
+                    row.Cells["col_partno"].Value = partno;
+                    row.Cells["col_qty"].Value = qty;
+                    row.Cells["col_wcno"].Value = part_wcno;
+                    row.Cells["col_cm"].Value = cm;
+
+                    // Color mode cell like panel: IN green, OUT red
+                    if (string.Equals(mode, "IN", StringComparison.OrdinalIgnoreCase))
+                    {
+                        row.Cells["col_type"].Style.BackColor = Color.FromArgb(66, 173, 130);
+                        row.Cells["col_type"].Style.ForeColor = Color.White;
+                    }
+                    else
+                    {
+                        row.Cells["col_type"].Style.BackColor = Color.FromArgb(255, 89, 93);
+                        row.Cells["col_type"].Style.ForeColor = Color.White;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"เกิดข้อผิดพลาดในการดึงข้อมูล: {ex.Message}", "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+        }
+
+        private class ModalItem
+        {
+            public string Mode { get; set; }
+            public string PartNo { get; set; }
+            public string CM { get; set; }
+            public string PartType { get; set; }
+            public int Qty { get; set; }
+            public string WCNO { get; set; }
+        }
+
+        private List<ModalItem> CollectItemsFromGrid()
+        {
+            var list = new List<ModalItem>();
+            foreach (DataGridViewRow row in gv_list_scan.Rows)
+            {
+                if (row.IsNewRow) continue;
+                var mode = Convert.ToString(row.Cells["col_type"].Value);
+                var partNo = Convert.ToString(row.Cells["col_partno"].Value) ?? string.Empty;
+                var qtyText = Convert.ToString(row.Cells["col_qty"].Value) ?? "0";
+                var wcno = Convert.ToString(row.Cells["col_wcno"].Value) ?? string.Empty;
+                var cm = Convert.ToString(row.Cells["col_cm"].Value) ?? string.Empty;
+
+                int qty;
+                if (!int.TryParse(qtyText, out qty)) qty = 0;
+
+                list.Add(new ModalItem
+                {
+                    Mode = mode,
+                    PartNo = partNo,
+                    CM = cm,
+                    Qty = qty,
+                    WCNO = wcno
+                });
+            }
+            return list;
+        }
+
+        private void btn_save_Click(object sender, EventArgs e)
+        {
+            var list = CollectItemsFromGrid();
+            if (list.Count == 0)
+            {
+                MessageBox.Show("ไม่มีรายการให้บันทึก", "ข้อมูลว่าง", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            DataTable dtToSave = new DataTable();
+            dtToSave.Columns.Add("WCNO", typeof(string));
+            dtToSave.Columns.Add("Partno", typeof(string));
+            dtToSave.Columns.Add("CM", typeof(string));
+            dtToSave.Columns.Add("Qty", typeof(int));
+
+            List<PropItemScan> propList = new List<PropItemScan>();
+            foreach (var item in list)
+            {
+                dtToSave.Rows.Add(item.WCNO, item.PartNo, item.CM, item.Qty);
+                propList.Add(new PropItemScan
+                {
+                    WCNO = item.WCNO,
+                    PARTNO = item.PartNo,
+                    QTY = item.Qty,
+                    TYPE = item.Mode,
+                    CM = item.CM
+                });
+            }
+
+            // The user requested to collect data into List<PropItemScan>
+            // The SaveToWIPDatabase currently takes a DataTable.
+            // I will keep the existing call to SaveToWIPDatabase, but the collected list is in 'propList'.
+            // If SaveToWIPDatabase needs to be changed to accept the list, that would be a separate task.
+
+            if (SaveToWIPDatabase(dtToSave))
+            {
+                MessageBox.Show($"บันทึกรายการ {list.Count} รายการแล้ว");
+                gv_list_scan.Rows.Clear();
+            }
+        }
+
+        private void btn_claer_Click(object sender, EventArgs e)
+        {
+            gv_list_scan.Rows.Clear();
+        }
+
+        private void btnIn_Click(object sender, EventArgs e)
+        {
+            CurrentScanMode = "IN";
+            ViewMethod(CurrentScanMode);
+            btnOut.BackColor = Color.FromArgb(224, 224, 224);
+            btnIn.BackColor = Color.FromArgb(66, 173, 130);
+            ini.WriteValue("CONFIG", "MODE", "IN");
+        }
+
+        private void btnOut_Click(object sender, EventArgs e)
+        {
+            CurrentScanMode = "OUT";
+            ViewMethod(CurrentScanMode);
+            btnOut.BackColor = Color.FromArgb(255, 89, 93);
+            btnIn.BackColor = Color.FromArgb(224, 224, 224);
+            ini.WriteValue("CONFIG", "MODE", "OUT");
+        }
+
+        public class PropItemScan
+        {
+            public string WCNO { get; set; }
+            public string PARTNO { get; set; }
+            public int QTY { get; set; }
+            public string TYPE { get; set; }
+            public string CM { get; set; }
+        }
+    }
+}

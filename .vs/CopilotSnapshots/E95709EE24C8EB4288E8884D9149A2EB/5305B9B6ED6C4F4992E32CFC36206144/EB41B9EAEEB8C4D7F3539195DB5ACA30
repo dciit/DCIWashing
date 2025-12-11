@@ -1,0 +1,31 @@
+﻿using System;
+using System.Windows.Forms;
+
+namespace DCIWashing
+{
+    internal static class Program
+    { 
+        [STAThread]
+        static void Main()
+        {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            
+            // แสดง Login Dialog ก่อน
+            FrmLogin loginForm = new FrmLogin();
+            DialogResult loginResult = loginForm.ShowDialog();
+            
+            if (loginResult == DialogResult.OK && loginForm.IsLoginSuccessful)
+            {
+                // ถ้า Login สำเร็จ แสดง Main Form และส่งข้อมูลผู้ใช้
+                FrmMain mainForm = new FrmMain(loginForm.LoggedInUserName);
+                Application.Run(mainForm);
+            }
+            else
+            {
+                // ถ้า Login ไม่สำเร็จหรือกดยกเลิก ให้ออกจากโปรแกรม
+                Application.Exit();
+            }
+        }
+    }
+}
